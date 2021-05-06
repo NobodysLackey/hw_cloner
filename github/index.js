@@ -21,7 +21,7 @@ module.exports = class Github {
 
   clone(repos) {
     console.log(chalk.green('Cloning Repos'))
-    this.storage = `${process.cwd()}/${this.repo}`
+    this.storage = `~/Desktop/${this.repo}`
     if (!fs.existsSync(this.storage)) {
       fs.mkdirSync(this.storage)
     }
