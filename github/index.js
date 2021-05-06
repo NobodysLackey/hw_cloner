@@ -21,16 +21,19 @@ module.exports = class Github {
 
   clone(repos) {
     console.log(chalk.green('Cloning Repos'))
-    this.storage = `${process.cwd()}/repos/${this.repo}`
-    if (!fs.existsSync(this.storage)) {
-      fs.mkdirSync(this.storage)
+    let basePath = `~/Desktop/repos`
+    if (!fs.existsSync(basePath)) {
+      fs.mkdirSync(basePath)
+    }
+    if (!fs.existsSync(`${basePath}/${this.repo}`)) {
+      fs.mkdirSync(`${basePath}/${this.repo}`)
     }
     const bar = new Progress.SingleBar({}, Progress.Presets.shades_classic)
     let progress = 0
 
     bar.start(repos.length, progress)
     for (let repo of repos) {
-      const storage = `${this.storage}/${repo.folderName}`
+      const storage = `${basePath}/${repo.folderName}`
       if (!fs.existsSync(storage)) {
         fs.mkdirSync(storage)
       }
