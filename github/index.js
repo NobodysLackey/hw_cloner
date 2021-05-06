@@ -21,7 +21,7 @@ module.exports = class Github {
 
   clone(repos) {
     console.log(chalk.green('Cloning Repos'))
-    let basePath = `~/Desktop/repos`
+    let basePath = `${process.cwd()}/repos`
     if (!fs.existsSync(basePath)) {
       fs.mkdirSync(basePath)
     }
@@ -46,6 +46,7 @@ module.exports = class Github {
       bar.update(progress)
     }
     bar.stop()
+    console.log(chalk.green(`Repos Cloned To ${basePath}`))
     this.checkNeedsInstall()
   }
 
