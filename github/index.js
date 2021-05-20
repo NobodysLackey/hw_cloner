@@ -18,7 +18,12 @@ module.exports = class Github {
   authenticate() {
     this.client = new Octokit({ auth: this.token })
   }
-
+  async searchRepos(q) {
+    const res = await this.client.request('GET /search/repositories', {
+      q: `${q} org:${this.org}`
+    })
+    console.log(res)
+  }
   clone(repos) {
     console.log(chalk.green('Cloning Repos'))
     let basePath = `${process.cwd()}/repos`
@@ -33,20 +38,23 @@ module.exports = class Github {
 
     bar.start(repos.length, progress)
     for (let repo of repos) {
-      const storage = `${basePath}/${repo.folderName}`
-      if (!fs.existsSync(storage)) {
-        fs.mkdirSync(storage)
+      this.storage = `${basePath}/${this.repo}/${repo.folderName}`
+      if (!fs.existsSync(this.storage)) {
+        fs.mkdirSync(this.storage)
       }
 
       progress++
-      execSync(`git -C ${storage} clone ${repo.cloneUrl} -q`)
-      execSync(`cd ${storage}/${this.repo} && mv * ../ `)
-      execSync(`cd ${storage} && rm -rf ${this.repo}`)
-      this.folders.push(`${storage}`)
+      console.log(this.storage)
+      execSync(
+        `cd ${basePath} && git -C ${this.storage} clone ${repo.cloneUrl} -q`
+      )
+      execSync(`cd ${this.storage}/${this.repo} && mv * ../ `)
+      execSync(`cd ${this.storage}/ && rm -rf ${this.repo}`)
+      this.folders.push(`${this.storage}`)
       bar.update(progress)
     }
     bar.stop()
-    console.log(chalk.green(`Repos Cloned To ${basePath}`))
+    console.log(chalk.green(`Repos Cloned To ${this.storage}`))
     this.checkNeedsInstall()
   }
 

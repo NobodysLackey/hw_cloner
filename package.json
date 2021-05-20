@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "preferGlobal": true,
   "bin": {
-    "puller": "./index.js"
+    "sei-puller": "./index.js"
   },
   "dependencies": {
     "@octokit/core": "^3.4.0",
