@@ -26,7 +26,7 @@ module.exports = class Github {
   }
   clone(repos) {
     console.log(chalk.green('Cloning Repos'))
-    let basePath = `${process.cwd()}/repos`
+    let basePath = `${process.cwd()}/${this.org}-hw`
     if (!fs.existsSync(basePath)) {
       fs.mkdirSync(basePath)
     }
