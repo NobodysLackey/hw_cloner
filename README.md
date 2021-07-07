@@ -34,3 +34,7 @@ A folder will be created in your home directory under the name of the Organizati
 The tool will also install dependencies for Python or Javascript packages.
 
 **Ruby coming soon**
+
+## How are credentials stored?
+
+Your Github personal access token and username will be stored in a `.hw-cloner` folder within your home directory. None of these credentials get exposed externally and will remain local to your machine.
