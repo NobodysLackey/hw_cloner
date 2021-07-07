@@ -32,9 +32,7 @@ const startProcess = async () => {
   )
   cloner.installDeps(installedPath)
   console.log(
-    chalk.green(
-      `All Repos Cloned! Folders can be found in  ${installedPath}/${repo}`
-    )
+    chalk.green(`All Repos Cloned! Folders can be found in  ${installedPath}`)
   )
 }
 
