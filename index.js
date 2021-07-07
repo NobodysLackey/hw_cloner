@@ -1,104 +1,61 @@
 #!/usr/bin/env node
 
-const inquirer = require('inquirer')
+const { program } = require('commander')
+
 const chalk = require('chalk')
 const fs = require('fs')
-const Github = require('./github')
-require('dotenv').config()
+const genCredentials = require('./utils/genCredentials')
 
-const orgPrompt = {
-  name: 'org',
-  type: 'input',
-  message: chalk.green('Which github organization are you working with today?')
-}
+// Load Current Version From Package.json
+const VERSION_NUMBER = require('./package.json').version
+const Cloner = require('./cloner')
+const { initPrompts } = require('./utils/prompts')
 
-const tokenPrompt = {
-  name: 'token',
-  type: 'input',
-  message: chalk.magenta('Enter your github personal access token:')
-}
+program.version(VERSION_NUMBER)
 
-const saveTokenPrompt = {
-  name: 'save_token',
-  type: 'confirm',
-  message: chalk.red('Would you like to save your token for another time?')
-}
-const authUserPrompt = {
-  name: 'auth_user',
-  type: 'input',
-  message: chalk.red('Enter your github username:')
-}
-const saveUserPrompt = {
-  name: 'save_user',
-  type: 'confirm',
-  message: chalk.red('Would you like to save your username for another time?')
-}
-const saveOrgPrompt = {
-  name: 'save_org',
-  type: 'confirm',
-  message: chalk.red(
-    'Would you like to save your organization for another time?'
+// Check if credentials exist
+let credentialsInstalled = fs.existsSync('credentials.json')
+
+const startProcess = async () => {
+  const credentials = require('./credentials.json')
+  const cloner = new Cloner(credentials.token)
+  const orgs = await cloner.listOrgs()
+  const { org, repo } = await initPrompts(orgs)
+  const repos = await cloner.getPrs(org, repo)
+  const preparedRepoData = await cloner.loadRepos(repos, credentials)
+
+  let installedPath = cloner.cloneRepos(
+    repo,
+    preparedRepoData,
+    org,
+    credentials
+  )
+  cloner.installDeps(installedPath)
+  console.log(
+    chalk.green(
+      `All Repos Cloned! Folders can be found in  ${installedPath}/${repo}`
+    )
   )
 }
 
-const prompt = {
-  name: 'repo',
-  type: 'input',
-  message: chalk.green('Which homework are you checking today:')
+program
+  .option('-h, --help', 'List Help')
+  .option('-s, --setup', 'Setup Credentials')
+  .option('-r, --run', 'Start Cloning Process')
+  .parse()
+
+const { setup, run } = program.opts()
+
+if (setup) {
+  genCredentials()
 }
 
-const checkSaveSettings = (answers) => {
-  let entry = ''
-  switch (true) {
-    case answers.save_org && answers.save_token:
-      entry = `GH_TOKEN=${answers.token}\nORG_NAME=${answers.org}`
-      break
-    case answers.save_org && !answers.save_token:
-      entry = `ORG_NAME=${answers.org}`
-      break
-    case !answers.save_org && answers.save_token:
-      entry = `GH_TOKEN=${answers.token}\n`
-      break
-    default:
-      break
-  }
-  if (entry) {
-    fs.writeFileSync(`${process.cwd()}/.env`, entry)
-  }
-  return entry
+if (run && credentialsInstalled) {
+  startProcess()
+} else {
+  // Rerun setup if no credentials found
+  console.warn(
+    chalk.yellow('No Credentials Found...\nStarting setup process...\n')
+  )
+  genCredentials().then(() => startProcess())
 }
-
-const startPrompts = () => {
-  console.log(chalk.green("Start Cloning Hw's"))
-  let confirmedPrompts = []
-  const { ORG_NAME, GH_TOKEN } = process.env
-  if (!ORG_NAME && !GH_TOKEN) {
-    confirmedPrompts = [
-      orgPrompt,
-      tokenPrompt,
-      saveTokenPrompt,
-      saveOrgPrompt,
-      prompt
-    ]
-  } else if (GH_TOKEN && !ORG_NAME) {
-    confirmedPrompts = [orgPrompt, saveOrgPrompt, prompt]
-  } else {
-    confirmedPrompts = [prompt]
-  }
-  inquirer.prompt(confirmedPrompts).then(async (answers) => {
-    const config = {
-      token: GH_TOKEN || answers.token,
-      org: ORG_NAME || answers.org,
-      repo: answers.repo
-    }
-    checkSaveSettings(answers)
-    const github = new Github(config.token, config.org, config.repo)
-    github.authenticate()
-    const rqs = await github.listPulls()
-    const repos = await github.retrieveRepos(rqs)
-    await github.clone(repos)
-    console.log(chalk.green('All Done!'))
-  })
-}
-
-startPrompts()
