@@ -33,7 +33,7 @@ A folder will be created in your home directory under the name of the Organizati
 
 The tool will also install dependencies for Python or Javascript packages.
 
-**Ruby coming soon**
+**Ruby support coming soon.**
 
 ## How are credentials stored?
 
