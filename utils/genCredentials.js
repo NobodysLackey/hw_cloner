@@ -14,8 +14,8 @@ module.exports = async () => {
       name: 'username'
     }
   ])
-  fs.writeFileSync(
-    'credentials.json',
+  await fs.writeFileSync(
+    './credentials.json',
     JSON.stringify({
       token: answers.token,
       dateCreated: new Date(),
