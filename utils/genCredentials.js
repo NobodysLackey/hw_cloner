@@ -1,6 +1,7 @@
 const inquirer = require('inquirer')
 const fs = require('fs')
 const os = require('os')
+const chalk = require('chalk')
 module.exports = async () => {
   const answers = await inquirer.prompt([
     {
@@ -18,6 +19,10 @@ module.exports = async () => {
   let path = `${os.homedir}/.hw_cloner`
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path)
+  }
+  if (!answers.token && !answers.username) {
+    console.error(chalk.red('Empty Inputs, Aborting Setup.'))
+    process.exit()
   }
   fs.writeFileSync(
     `${os.homedir}/.hw_cloner/credentials.json`,

@@ -137,11 +137,11 @@ module.exports = class Cloner {
       if (files.includes('requirements.txt')) {
         console.info(
           chalk.blue(
-            `Python Project Found, creating virtual env and installing packages.`
+            `\nPython Project Found, creating virtual env and installing packages.`
           )
         )
         execSync(
-          `cd ${fullPath} && virtualenv venv && . venv/bin/activate && pip3 install -r requirements.txt`
+          `cd ${fullPath} && virtualenv venv && . venv/bin/activate && pip3 install --disable-pip-version-check -r requirements.txt`
         )
       }
       if (files.includes('package.json')) {
