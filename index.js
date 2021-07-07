@@ -10,6 +10,7 @@ const genCredentials = require('./utils/genCredentials')
 const VERSION_NUMBER = require('./package.json').version
 const Cloner = require('./cloner')
 const { initPrompts } = require('./utils/prompts')
+const inquirer = require('inquirer')
 
 program.version(VERSION_NUMBER)
 let credPath = `${os.homedir}/.hw_cloner`
@@ -47,19 +48,47 @@ program
   .option('-i, --init', 'Start Cloning Process')
   .option('-r , --repo <name>', 'Repo To Clone')
   .option('-o , --org <name>', 'Org To Find')
+  .option('-d, --debug', 'Reset Credential File')
 
-// program.addOption(new Option('-h, --help'))
 program.addHelpCommand()
+
 program.parse(process.argv)
 
-const { setup, run, repo, org, help } = program.opts()
+const { setup, init, repo, org, debug } = program.opts()
 
-if (!setup || !run) {
-  program.help()
+if (init && credentialsInstalled) {
+  startProcess()
+  return
+}
+
+if (init && !credentialsInstalled) {
+  // Rerun setup if no credentials found
+  console.warn(
+    chalk.yellow('No Credentials Found...\nStarting setup process...\n')
+  )
+  genCredentials().then(() => startProcess())
+  return
 }
 
 if (setup) {
+  if (credentialsInstalled) {
+    console.warn(chalk.red('Credentials Already Installed.'))
+  }
   genCredentials()
+  return
+}
+
+if (debug) {
+  inquirer
+    .prompt({
+      type: 'confirm',
+      message:
+        "Are you sure you want to delete the credential file? You'll need to re-run the setup process.",
+      name: 'reset'
+    })
+    .then((answer) =>
+      answer ? fs.unlinkSync(`${credPath}/credentials.json`) : null
+    )
   return
 }
 
@@ -68,13 +97,6 @@ if (org && repo && credentialsInstalled) {
   return
 }
 
-if (run && credentialsInstalled) {
-  startProcess()
-  return
-} else {
-  // Rerun setup if no credentials found
-  console.warn(
-    chalk.yellow('No Credentials Found...\nStarting setup process...\n')
-  )
-  genCredentials().then(() => startProcess())
+if (!setup || !init || !debug) {
+  program.help()
 }

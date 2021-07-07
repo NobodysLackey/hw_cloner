@@ -7,12 +7,12 @@ module.exports = async () => {
     {
       type: 'input',
       message:
-        'Enter Your Github Personal Access Token. You can create one here: https://github.com/settings/tokens\nEnable the following scopes:\n- read:org\n- repo (Full Control)\n',
+        'Enter Your Github Personal Access Token. You can create one here: https://github.com/settings/tokens\nEnable the following scopes:\n- read:org\n- repo (Full Control)\nPersonal Access Token:',
       name: 'token'
     },
     {
       type: 'input',
-      message: 'Enter your github username: ',
+      message: 'Enter your github username:',
       name: 'username'
     }
   ])
