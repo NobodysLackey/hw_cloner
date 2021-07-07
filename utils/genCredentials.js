@@ -1,5 +1,6 @@
 const inquirer = require('inquirer')
 const fs = require('fs')
+const os = require('os')
 module.exports = async () => {
   const answers = await inquirer.prompt([
     {
@@ -14,8 +15,12 @@ module.exports = async () => {
       name: 'username'
     }
   ])
-  await fs.writeFileSync(
-    './credentials.json',
+  let path = `${os.homedir}/.hw_cloner`
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path)
+  }
+  fs.writeFileSync(
+    `${os.homedir}/.hw_cloner/credentials.json`,
     JSON.stringify({
       token: answers.token,
       dateCreated: new Date(),

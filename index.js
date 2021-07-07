@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require('commander')
-
+const os = require('os')
 const chalk = require('chalk')
 const fs = require('fs')
 const genCredentials = require('./utils/genCredentials')
@@ -12,12 +12,12 @@ const Cloner = require('./cloner')
 const { initPrompts } = require('./utils/prompts')
 
 program.version(VERSION_NUMBER)
-
+let credPath = `${os.homedir}/.hw_cloner`
 // Check if credentials exist
-let credentialsInstalled = fs.existsSync('credentials.json')
+let credentialsInstalled = fs.existsSync(`${credPath}/credentials.json`)
 
 const startProcess = async () => {
-  const credentials = require('./credentials.json')
+  const credentials = require(`${credPath}/credentials.json`)
   const cloner = new Cloner(credentials.token)
   const orgs = await cloner.listOrgs()
   const { org, repo } = await initPrompts(orgs)
