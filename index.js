@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { program } = require('commander')
+const { program, Option } = require('commander')
 const os = require('os')
 const chalk = require('chalk')
 const fs = require('fs')
@@ -16,12 +16,17 @@ let credPath = `${os.homedir}/.hw_cloner`
 // Check if credentials exist
 let credentialsInstalled = fs.existsSync(`${credPath}/credentials.json`)
 
-const startProcess = async () => {
+const startProcess = async (repo, org) => {
   const credentials = require(`${credPath}/credentials.json`)
   const cloner = new Cloner(credentials.token)
-  const orgs = await cloner.listOrgs()
-  const { org, repo } = await initPrompts(orgs)
+  if (!repo || !org) {
+    const orgs = await cloner.listOrgs()
+    const prompts = await initPrompts(orgs)
+    repo = prompts.repo
+    org = prompts.org
+  }
   const repos = await cloner.getPrs(org, repo)
+  console.log(repos)
   const preparedRepoData = await cloner.loadRepos(repos, credentials)
 
   let installedPath = cloner.cloneRepos(
@@ -34,22 +39,38 @@ const startProcess = async () => {
   console.log(
     chalk.green(`All Repos Cloned! Folders can be found in  ${installedPath}`)
   )
+  return
 }
 
 program
-  .option('-h, --help', 'List Help')
   .option('-s, --setup', 'Setup Credentials')
-  .option('-r, --run', 'Start Cloning Process')
-  .parse()
+  .option('-i, --init', 'Start Cloning Process')
+  .option('-r , --repo <name>', 'Repo To Clone')
+  .option('-o , --org <name>', 'Org To Find')
 
-const { setup, run } = program.opts()
+// program.addOption(new Option('-h, --help'))
+program.addHelpCommand()
+program.parse(process.argv)
+
+const { setup, run, repo, org, help } = program.opts()
+
+if (!setup || !run) {
+  program.help()
+}
 
 if (setup) {
   genCredentials()
+  return
+}
+
+if (org && repo && credentialsInstalled) {
+  startProcess(repo, org)
+  return
 }
 
 if (run && credentialsInstalled) {
   startProcess()
+  return
 } else {
   // Rerun setup if no credentials found
   console.warn(
