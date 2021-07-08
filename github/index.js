@@ -38,7 +38,7 @@ module.exports = class Github {
 
     bar.start(repos.length, progress)
     for (let repo of repos) {
-      this.storage = `${basePath}/${this.repo}/${repo.folderName}`
+      this.storage = `${basePath}/${this.repo}`
       if (!fs.existsSync(this.storage)) {
         fs.mkdirSync(this.storage)
       }
@@ -48,8 +48,7 @@ module.exports = class Github {
       execSync(
         `cd ${basePath} && git -C ${this.storage} clone ${repo.cloneUrl} -q`
       )
-      execSync(`cd ${this.storage}/${this.repo} && mv * ../ `)
-      execSync(`cd ${this.storage}/ && rm -rf ${this.repo}`)
+      execSync(`cd ${this.storage} && mv ${this.repo} ${repo.folderName}`)
       this.folders.push(`${this.storage}`)
       bar.update(progress)
     }
