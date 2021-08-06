@@ -35,7 +35,10 @@ module.exports = class Cloner {
         .map((d) => ({
           user: d.user.login,
           repo,
-          folderName: slugify(d.title, { replacement: '_', lower: true })
+          folderName: slugify(d.title.replace(/[^\w\s]/gi, ''), {
+            replacement: '_',
+            lower: true
+          })
         }))
     } catch (error) {
       console.error(chalk.red('Repo or Org is incorrect.'))
