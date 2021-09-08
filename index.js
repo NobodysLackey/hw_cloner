@@ -27,7 +27,6 @@ const startProcess = async (repo, org) => {
     org = prompts.org
   }
   const repos = await cloner.getPrs(org, repo)
-  console.log(repos)
   const preparedRepoData = await cloner.loadRepos(repos, credentials)
 
   let installedPath = cloner.cloneRepos(
