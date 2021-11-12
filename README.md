@@ -2,7 +2,12 @@
 
 ## Getting Started
 
-Npm:
+Generate a personal access token on [github](https://github.com/settings/tokens) with the following permissions:
+
+- `repo`
+- `admin:org`
+
+npm:
 
 ```sh
 npm i -g hw-cloner
